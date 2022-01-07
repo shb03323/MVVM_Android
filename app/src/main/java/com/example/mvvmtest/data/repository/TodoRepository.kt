@@ -35,4 +35,26 @@ class TodoRepository(application: Application) {
             })
 
     }
+
+    @SuppressLint("CheckResult")
+    fun updateTodo(todoModel: TodoModel) {
+        Observable.just(todoModel)
+            .subscribeOn(Schedulers.io())
+            .subscribe({
+                mTodoDAO.updateTodo(todoModel)
+            }, {
+
+            })
+    }
+
+    @SuppressLint("CheckResult")
+    fun deleteTodo(todoModel: TodoModel) {
+        Observable.just(todoModel)
+            .subscribeOn(Schedulers.io())
+            .subscribe({
+                mTodoDAO.deleteTodo(todoModel)
+            }, {
+
+            })
+    }
 }

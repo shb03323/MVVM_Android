@@ -1,4 +1,4 @@
-package com.example.mvvmtest.ui
+package com.example.mvvmtest.ui.adapter
 
 import android.annotation.SuppressLint
 import android.view.LayoutInflater
@@ -7,7 +7,6 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.example.mvvmtest.data.model.TodoModel
 import com.example.mvvmtest.databinding.ItemTodoBinding
-import com.example.mvvmtest.ui.adapter.TodoListDiffCallback
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
@@ -16,6 +15,17 @@ import java.util.*
 
 class TodoListAdapter: RecyclerView.Adapter<TodoListAdapter.TodoViewHolder>() {
     private var todoList = mutableListOf<TodoModel>()
+
+    interface OnTodoItemClickListener {
+        fun onTodoItemClick(position: Int)
+        fun onTodoItemLongClick(position: Int)
+    }
+
+    var listener: OnTodoItemClickListener? = null
+
+    fun getItem(position: Int): TodoModel {
+        return todoList[position]
+    }
 
     override fun getItemCount(): Int {
         return todoList.size
@@ -31,7 +41,7 @@ class TodoListAdapter: RecyclerView.Adapter<TodoListAdapter.TodoViewHolder>() {
             parent, false
         )
 
-        return TodoViewHolder(binding)
+        return TodoViewHolder(binding, listener = null)
     }
 
     fun addItem(todoModel: TodoModel) {
@@ -55,7 +65,18 @@ class TodoListAdapter: RecyclerView.Adapter<TodoListAdapter.TodoViewHolder>() {
         })
     }
 
-    class TodoViewHolder(private val binding: ItemTodoBinding): RecyclerView.ViewHolder(binding.root) {
+    class TodoViewHolder(private val binding: ItemTodoBinding, listener: OnTodoItemClickListener?): RecyclerView.ViewHolder(binding.root) {
+        init {
+            itemView.setOnClickListener {
+                listener?.onTodoItemClick(adapterPosition)
+            }
+
+            itemView.setOnLongClickListener {
+                listener?.onTodoItemLongClick(adapterPosition)
+                return@setOnLongClickListener true
+            }
+        }
+
         fun onBind(model: TodoModel) {
             binding.tvTodoTitle.text = model.title
             binding.tvTodoDescription.text = model.description
